@@ -87,8 +87,8 @@ public class BoklListener extends boklBaseListener {
                 Opcodes.GETSTATIC,
                 "java/lang/System",
                 "out",
-                "Ljava/io/PrintStream;");
-
+                "Ljava/io/PrintStream;"
+        );
         String desc;
         if (ctx.Num() != null){
             methodVisitor.visitLdcInsn(Integer.parseInt(ctx.Num().getText()));
@@ -220,22 +220,22 @@ public class BoklListener extends boklBaseListener {
 
         switch (ctx.compareOperation().getText()){
             case "==":
-                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPEQ, l);
-                break;
-            case "!=":
                 methodVisitor.visitJumpInsn(Opcodes.IF_ICMPNE, l);
                 break;
+            case "!=":
+                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPEQ, l);
+                break;
             case "<":
-                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPLT, l);
-                break;
-            case "<=":
-                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPLE, l);
-                break;
-            case ">":
                 methodVisitor.visitJumpInsn(Opcodes.IF_ICMPGT, l);
                 break;
-            case ">=":
+            case "<=":
                 methodVisitor.visitJumpInsn(Opcodes.IF_ICMPGE, l);
+                break;
+            case ">":
+                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPLT, l);
+                break;
+            case ">=":
+                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPLE, l);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid operation="+ctx.compareOperation().getText());

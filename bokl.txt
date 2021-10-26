@@ -29,4 +29,12 @@ mainFunc{
 	if (str <= "b") {
 	    print("B greater than A");
 	}
+
+	int index = 0;
+	while (str != "jjj"){
+	    print("Index =");
+	    print(index);
+	    index++;
+	    str = "jjj";
+	}
 }

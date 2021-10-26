@@ -1,7 +1,7 @@
 grammar bokl;
 
 type: Int | String;
-varDeclaration: type WS Var LE WS?;
+varDeclaration: type WS Var WS? LE WS?;
 
 intRValue: Var | Num;
 intVarDeclaration: Int WS Var WS? '=' WS? intRValue WS? LE WS?;
@@ -13,13 +13,13 @@ strVarDeclaration: String WS Var WS '=' WS strRValue WS? LE WS?;
 strVarAssign: Var WS? '=' WS? strRValue WS? LE WS?;
 compareStr: strRValue WS? compareOperation WS? strRValue WS?;
 
-condition: '('(compareInt | compareStr)')' WS?;
+condition: '(' WS? (compareInt | compareStr) WS? ')' WS?;
 ifStatement: 'if' WS (condition) codeBlock WS?;
 
-print : Print WS? '(' (Num | StringValue | Var) WS? ')' WS? LE WS?;
-gotoOperation: Goto WS Var WS? LE WS?;
+print : 'print' WS? '(' (Num | StringValue | Var) WS? ')' WS? LE WS?;
+gotoOperation: 'goto' WS Var WS? LE WS?;
 increment: Var '++' WS? LE WS?;
-whileLoop: 'while' WS? '(' WS? compareInt WS? ')' WS? codeBlock WS?;
+whileLoop: 'while' WS? (condition) WS? codeBlock WS?;
 gotoLabel: GT WS? Var WS? LE WS?;
 
 
@@ -43,18 +43,12 @@ Equal: '==';
 
 LE : ';' ;
 WS : [ \n\r\t]+;
-NL: '\n';
 
 GT : '$';
-Goto: 'goto';
 
 Int : 'int' ;
 String : 'string' ;
 
-Print: 'print';
-
-Var : [a-zA-Z][a-zA-Z0-9]*;
+Var : [a-zA-Z][a-zA-Z0-9_]*;
 Num : '-'?[0-9]+;
-StringValue: '"' StringSub '"';
-fragment Esc: '\\"' | '\\\\';
-fragment StringSub: (Esc | .)*?;
+StringValue: '"' (.)*? '"';
