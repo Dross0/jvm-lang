@@ -17,7 +17,7 @@ public class BoklListener extends boklBaseListener {
     private final MethodVisitor methodVisitor;
     private final VariableStorage variableStorage = new VariableStorage();
     private final Map<String, Label> labels = new HashMap<>();
-    private final LinkedList<Label> flows = new LinkedList<>();
+    private final LinkedList<Label> codeFlow = new LinkedList<>();
 
     public BoklListener(MethodVisitor methodVisitor){
         this.methodVisitor = methodVisitor;
@@ -33,15 +33,13 @@ public class BoklListener extends boklBaseListener {
     @Override
     public void exitIntVarDeclaration(boklParser.IntVarDeclarationContext ctx) {
         String varName = ctx.Var().getSymbol().getText();
-        int id = variableStorage.declare(varName, VarType.INT);
-        assignInt(id, ctx.intRValue());
+        assignInt(variableStorage.declare(varName, VarType.INT), ctx.intRValue());
     }
 
     @Override
     public void exitIntVarAssign(boklParser.IntVarAssignContext ctx) {
         String varName = ctx.Var().getText();
-        int id = variableStorage.getId(varName);
-        assignInt(id, ctx.intRValue());
+        assignInt(variableStorage.getId(varName), ctx.intRValue());
     }
 
     private void assignInt(int id, boklParser.IntRValueContext intRValueContext) {
@@ -52,8 +50,7 @@ public class BoklListener extends boklBaseListener {
         }
         else{
             String varName = intRValueContext.Var().getText();
-            int rId = variableStorage.getId(varName);
-            methodVisitor.visitVarInsn(Opcodes.ILOAD, rId);
+            methodVisitor.visitVarInsn(Opcodes.ILOAD, variableStorage.getId(varName));
             methodVisitor.visitIntInsn(Opcodes.ISTORE, id);
         }
     }
@@ -61,27 +58,25 @@ public class BoklListener extends boklBaseListener {
     @Override
     public void exitStrVarDeclaration(boklParser.StrVarDeclarationContext ctx) {
         String varName = ctx.Var().getSymbol().getText();
-        int id = variableStorage.declare(varName, VarType.STRING);
-        assignStr(id, ctx.strRValue());
+        assignStr(variableStorage.declare(varName, VarType.STRING), ctx.strRValue());
     }
 
     @Override
     public void exitStrVarAssign(boklParser.StrVarAssignContext ctx) {
         String varName = ctx.Var().getText();
-        int id = variableStorage.getId(varName);
-        assignStr(id, ctx.strRValue());
+        assignStr(variableStorage.getId(varName), ctx.strRValue());
     }
 
     private void assignStr(int id, boklParser.StrRValueContext strRValueContext) {
         if (strRValueContext.StringValue() != null) {
-            String text = StringUtils.removeDoubleQuotes(strRValueContext.StringValue().getText());
-            methodVisitor.visitLdcInsn(text);
+            methodVisitor.visitLdcInsn(
+                    StringUtils.removeDoubleQuotes(strRValueContext.StringValue().getText())
+            );
             methodVisitor.visitVarInsn(Opcodes.ASTORE, id);
         }
         else{
             String varName = strRValueContext.Var().getText();
-            int rId = variableStorage.getId(varName);
-            methodVisitor.visitVarInsn(Opcodes.ALOAD, rId);
+            methodVisitor.visitVarInsn(Opcodes.ALOAD, variableStorage.getId(varName));
             methodVisitor.visitIntInsn(Opcodes.ASTORE, id);
         }
     }
@@ -143,7 +138,7 @@ public class BoklListener extends boklBaseListener {
 
     @Override
     public void exitIfStatement(boklParser.IfStatementContext ctx) {
-        Label l = flows.pollLast();
+        Label l = codeFlow.pollLast();
         methodVisitor.visitLabel(l);
     }
 
@@ -152,9 +147,7 @@ public class BoklListener extends boklBaseListener {
     public void exitCompareInt(boklParser.CompareIntContext ctx) {
         if (ctx.intRValue(0).Var() != null){
             String varName = ctx.intRValue(0).Var().getText();
-
-            int id = variableStorage.getId(varName);
-            methodVisitor.visitVarInsn(Opcodes.ILOAD, id);
+            methodVisitor.visitVarInsn(Opcodes.ILOAD, variableStorage.getId(varName));
         }
         else{
             methodVisitor.visitLdcInsn(Integer.parseInt(ctx.intRValue(0).Num().getText()));
@@ -162,8 +155,7 @@ public class BoklListener extends boklBaseListener {
 
         if (ctx.intRValue(1).Var() != null){
             String varName = ctx.intRValue(1).Var().getText();
-            int id = variableStorage.getId(varName);
-            methodVisitor.visitVarInsn(Opcodes.ILOAD, id);
+            methodVisitor.visitVarInsn(Opcodes.ILOAD, variableStorage.getId(varName));
         }
         else{
             methodVisitor.visitLdcInsn(Integer.parseInt(ctx.intRValue(1).Num().getText()));
@@ -193,7 +185,7 @@ public class BoklListener extends boklBaseListener {
             default:
                 throw new IllegalArgumentException("Invalid operation="+ctx.compareOperation().getText());
         }
-        flows.add(l);
+        codeFlow.add(l);
     }
 
     @Override
@@ -201,8 +193,7 @@ public class BoklListener extends boklBaseListener {
         if (ctx.strRValue(0).Var() != null){
             String varName = ctx.strRValue(0).Var().getText();
 
-            int id = variableStorage.getId(varName);
-            methodVisitor.visitVarInsn(Opcodes.ALOAD, id);
+            methodVisitor.visitVarInsn(Opcodes.ALOAD, variableStorage.getId(varName));
         }
         else{
             methodVisitor.visitLdcInsn(StringUtils.removeDoubleQuotes(ctx.strRValue(0).StringValue().getText()));
@@ -211,8 +202,7 @@ public class BoklListener extends boklBaseListener {
         if (ctx.strRValue(1).Var() != null){
             String varName = ctx.strRValue(1).Var().getText();
 
-            int id = variableStorage.getId(varName);
-            methodVisitor.visitVarInsn(Opcodes.ALOAD, id);
+            methodVisitor.visitVarInsn(Opcodes.ALOAD, variableStorage.getId(varName));
         }
         else{
             methodVisitor.visitLdcInsn(StringUtils.removeDoubleQuotes(ctx.strRValue(1).StringValue().getText()));
@@ -250,36 +240,35 @@ public class BoklListener extends boklBaseListener {
             default:
                 throw new IllegalArgumentException("Invalid operation="+ctx.compareOperation().getText());
         }
-        flows.add(l);
+        codeFlow.add(l);
     }
 
     @Override
     public void enterWhileLoop(boklParser.WhileLoopContext ctx) {
         Label l = new Label();
         methodVisitor.visitLabel(l);
-        flows.add(l);
+        codeFlow.add(l);
     }
 
     @Override
     public void exitWhileLoop(boklParser.WhileLoopContext ctx) {
-        Label l = flows.pollLast();
+        Label l = codeFlow.pollLast();
         methodVisitor.visitLabel(l);
     }
 
     @Override
     public void exitCodeBlock(boklParser.CodeBlockContext ctx) {
         if (ctx.parent instanceof boklParser.WhileLoopContext){
-            Label ifLabel = flows.pollLast();
-            Label loopLabel = flows.pollLast();
-            methodVisitor.visitJumpInsn(Opcodes.GOTO, loopLabel);
-            flows.add(ifLabel);
+            Label ifStatementLabel = codeFlow.pollLast();
+            Label whileLabel = codeFlow.pollLast();
+            methodVisitor.visitJumpInsn(Opcodes.GOTO, whileLabel);
+            codeFlow.add(ifStatementLabel);
         }
     }
 
     @Override
     public void exitIncrement(boklParser.IncrementContext ctx) {
         String varName = ctx.Var().getText();
-        int id = variableStorage.getId(varName);
-        methodVisitor.visitIincInsn(id, 1);
+        methodVisitor.visitIincInsn(variableStorage.getId(varName), 1);
     }
 }
