@@ -1,4 +1,4 @@
-package ru.gaidamaka.jvm.lang;
+package ru.gaidamaka.jvm.lang.variable;
 
 import ru.gaidamaka.jvm.lang.exception.MissDeclarationException;
 import ru.gaidamaka.jvm.lang.exception.MultiplyVariableDeclarationException;

@@ -12,6 +12,7 @@ import ru.gaidamaka.jvm.lang.antlr4.boklLexer;
 import ru.gaidamaka.jvm.lang.antlr4.boklParser;
 import ru.gaidamaka.jvm.lang.exception.MissDeclarationException;
 import ru.gaidamaka.jvm.lang.exception.MultiplyVariableDeclarationException;
+import ru.gaidamaka.jvm.lang.utils.StringUtils;
 
 import java.io.*;
 
@@ -26,7 +27,7 @@ public class Main {
             return;
         }
         try {
-            String fileNameWithoutExt = fileNameWithoutExt(args[0]);
+            String fileNameWithoutExt = StringUtils.fileNameWithoutExt(args[0]);
             ClassWriter classWriter = BoklClassFactory.createClass(args[0], fileNameWithoutExt);
             File classFile = new File(fileNameWithoutExt + ".class");
             try (BufferedOutputStream w = new BufferedOutputStream(new FileOutputStream(classFile))) {
@@ -43,10 +44,5 @@ public class Main {
             log.error("Неизвестная ошибка", e);
         }
     }
-
-    static String fileNameWithoutExt(String fileName){
-        return fileName.split("\\.")[0];
-    }
-
 
 }

@@ -8,6 +8,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import ru.gaidamaka.jvm.lang.antlr4.boklBaseListener;
 import ru.gaidamaka.jvm.lang.antlr4.boklParser;
+import ru.gaidamaka.jvm.lang.utils.StringUtils;
+import ru.gaidamaka.jvm.lang.variable.VarType;
+import ru.gaidamaka.jvm.lang.variable.VariableStorage;
 
 public class BoklListener extends boklBaseListener {
 
@@ -71,7 +74,7 @@ public class BoklListener extends boklBaseListener {
 
     private void assignStr(int id, boklParser.StrRValueContext strRValueContext) {
         if (strRValueContext.StringValue() != null) {
-            String text = removeDoubleQuotes(strRValueContext.StringValue().getText());
+            String text = StringUtils.removeDoubleQuotes(strRValueContext.StringValue().getText());
             methodVisitor.visitLdcInsn(text);
             methodVisitor.visitVarInsn(Opcodes.ASTORE, id);
         }
@@ -97,7 +100,7 @@ public class BoklListener extends boklBaseListener {
             desc = "(I)V";
         }
         else if (ctx.StringValue() != null){
-            methodVisitor.visitLdcInsn(removeDoubleQuotes(ctx.StringValue().getText()));
+            methodVisitor.visitLdcInsn(StringUtils.removeDoubleQuotes(ctx.StringValue().getText()));
             desc = "(Ljava/lang/String;)V";
         }
         else{
@@ -202,7 +205,7 @@ public class BoklListener extends boklBaseListener {
             methodVisitor.visitVarInsn(Opcodes.ALOAD, id);
         }
         else{
-            methodVisitor.visitLdcInsn(removeDoubleQuotes(ctx.strRValue(0).StringValue().getText()));
+            methodVisitor.visitLdcInsn(StringUtils.removeDoubleQuotes(ctx.strRValue(0).StringValue().getText()));
         }
 
         if (ctx.strRValue(1).Var() != null){
@@ -212,7 +215,7 @@ public class BoklListener extends boklBaseListener {
             methodVisitor.visitVarInsn(Opcodes.ALOAD, id);
         }
         else{
-            methodVisitor.visitLdcInsn(removeDoubleQuotes(ctx.strRValue(1).StringValue().getText()));
+            methodVisitor.visitLdcInsn(StringUtils.removeDoubleQuotes(ctx.strRValue(1).StringValue().getText()));
         }
 
         methodVisitor.visitMethodInsn(
@@ -278,9 +281,5 @@ public class BoklListener extends boklBaseListener {
         String varName = ctx.Var().getText();
         int id = variableStorage.getId(varName);
         methodVisitor.visitIincInsn(id, 1);
-    }
-
-    public String removeDoubleQuotes(String request) {
-        return request.replace("\"", "");
     }
 }

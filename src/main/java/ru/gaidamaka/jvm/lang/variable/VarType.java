@@ -1,4 +1,4 @@
-package ru.gaidamaka.jvm.lang;
+package ru.gaidamaka.jvm.lang.variable;
 
 public enum VarType {
     INT,
