@@ -25,14 +25,14 @@ public class BoklListener extends boklBaseListener {
 
     @Override
     public void exitVarDeclaration(boklParser.VarDeclarationContext ctx) {
-        String varName = ctx.Var().getSymbol().getText();
+        String varName = ctx.Var().getText();
         VarType type = ctx.type().Int() == null ? VarType.STRING : VarType.INT;
         variableStorage.declare(varName, type);
     }
 
     @Override
     public void exitIntVarDeclaration(boklParser.IntVarDeclarationContext ctx) {
-        String varName = ctx.Var().getSymbol().getText();
+        String varName = ctx.Var().getText();
         assignInt(variableStorage.declare(varName, VarType.INT), ctx.intRValue());
     }
 
