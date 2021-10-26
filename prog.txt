@@ -1,0 +1,32 @@
+mainFunc{
+	int i = 0;
+	int size = 10;
+	while (i < 10){
+		print(i);
+		i++;
+	}
+
+    int flag = 0;
+    $ label;
+    print("goto test");
+    if (flag == 0){
+        flag = 1;
+        goto label;
+    }
+
+    if (i != flag){
+        print("flag not equal i");
+    }
+
+	string str = "test";
+	print(str);
+
+	if (str == "test"){
+		print("str is test");
+		str = "a";
+	}
+
+	if (str <= "b") {
+	    print("B greater than A");
+	}
+}
