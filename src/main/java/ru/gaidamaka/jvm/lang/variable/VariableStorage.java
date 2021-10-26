@@ -9,13 +9,13 @@ import java.util.Map;
 public class VariableStorage {
     private final Map<String, VarType> types = new HashMap<>();
     private final Map<String, Integer> ids = new HashMap<>();
-    private int varCount = 0;
+    private int lastVarId = 0;
 
     public int declare(String varName, VarType type){
         checkMultiplyDeclaration(varName);
         types.put(varName, type);
-        ids.put(varName, varCount);
-        return varCount++;
+        ids.put(varName, lastVarId);
+        return lastVarId++;
     }
 
     public int getId(String varName){
